@@ -6,64 +6,50 @@
 #include <string>
 #include <vector>
 
-using namespace std;
-
 namespace anagram {
-    string tolowercase(string word) {
-        string lower = string(word);
+    using namespace std;
 
-        transform (lower.begin(), lower.end(), lower.begin(),
-            [] (char cc) {return tolower(cc);});
+    string lowerLetters(string word) {
+        transform(word.begin(), word.end(), word.begin(), ::tolower);
 
-        return lower;
+        return word;
+    }
+
+    string sortLetters(string word) {
+        sort(word.begin(), word.end());
+
+        return word;
     }
 
     class anagram {
     public:
-        anagram(const string word): word (word) {
-            lower = tolowercase(word);
+        explicit anagram(const string word): word (word),
+            lowerWord (lowerLetters(word)), sortedWord (sortLetters(lowerWord)) {}
 
-            sorted = string(lower);
-            sort(sorted.begin(), sorted.end());
+        bool isAnagram(const string word) const {
+            const string candidate = lowerLetters(string(word));
+
+            return candidate != lowerWord && sortLetters(candidate) == sortedWord;
         }
 
-    public:
-        vector<string> matches(std::initializer_list<string> wordlist) const {
-            auto anagramlist = new vector<string>;
+        vector<string> matches(const vector<string> candidates) const {
+            std::vector<string> anagramlist;
 
-            for_each (wordlist.begin(), wordlist.end(),
-                [anagramlist, this] (const string word) {
-                    string tmp = tolowercase(word);
+            for (auto candidate : candidates)
+                if (isAnagram(candidate))
+                    anagramlist.push_back(candidate);
 
-                    if (tmp == this->lower)
-                        return;
-
-                    sort(tmp.begin(), tmp.end());
-
-                    if (tmp.compare(this->sorted) == 0)
-                        anagramlist->push_back(word);
-                }
-            );
-
-            return *anagramlist;
+            return anagramlist;
         }
 
     private:
-        const string word;
-        string lower;
-        string sorted;
+        const string word, lowerWord, sortedWord;
     };
 }
 
 #endif
 
 //
-//  This solution seems so long and ugly compared with other languages.
-//
-//  Of the 8, 2 were just headers, one used find/erase, another just erase,
-//  one was written in C (complete the malloc).  The other 3 were like mine
-//  only better - shorter for a start.
-//
-//  They did not have the fight I had with a compiler and so were able to
-//  present good code.  I will have to try again.
+//  Better, none of the awkwardness of the first.  Still 50 lines when the
+//  best of the others are only about 40.
 //
