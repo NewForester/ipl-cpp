@@ -1,15 +1,29 @@
 #if !defined(DOS_H)
 #define DOS_H
 
+#include <algorithm>
+#include <functional>
+#include <numeric>
+
 namespace squares {
     int square_of_sums(int nn) {
-        int sum = nn * (nn + 1) / 2;
+        int numbers[nn];
+
+        std::iota(numbers, numbers + nn, 1);
+
+        int sum = std::accumulate(numbers, numbers + nn, 0, std::plus<int>());
 
         return sum * sum;
     }
 
     int sum_of_squares(int nn) {
-        return nn * (nn + 1) * (2 * nn + 1) / 6;
+        int numbers[nn];
+
+        std::iota(numbers, numbers + nn, 1);
+
+        std::transform(numbers, numbers + nn, numbers, numbers, std::multiplies<int>());
+
+        return std::accumulate(numbers, numbers + nn, 0, std::plus<int>());
     }
 
     int difference(int nn) {
@@ -20,9 +34,10 @@ namespace squares {
 #endif
 
 //
-//  This is the algebraic solution.  I've no idea how to do it in C++.
+//  This solution respects the instruction to:
 //
-//  Well it seems no one else does.  Half the solutions were C for loops;
-//  2 used (semi) algebraic solutions, one uses casts and one submitted
-//  only a header file.  What a waste.
+//        "Try to use standard C++11 facilities in preference to writing your
+//         own low-level algorithms or facilities by hand."
+//
+//  What a waste.
 //
