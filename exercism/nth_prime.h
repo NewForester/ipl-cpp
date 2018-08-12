@@ -1,47 +1,55 @@
 #if !defined(PRIME_H)
 #define PRIME_H
 
-#include <algorithm>
 #include <stdexcept>
-#include <vector>
 
 namespace prime {
+    bool isPrime(int candidate) {
+       for (int base = 5; base * base <= candidate; base += 6)
+            for (int factor : {base, base + 2})
+                if (candidate % factor == 0)
+                    return candidate == factor;
+
+        return true;
+    }
+
     int nth(int nth) {
         if (nth <= 0)
             throw std::domain_error("need a positive ordinal");
+        if (--nth == 0)
+            return 2;
+        if (--nth == 0)
+            return 3;
 
-        std::vector<int> primes;
-        primes.push_back(2);
-
-        for (int candidate = 3; nth > primes.size(); candidate += 2)
-            if (!std::any_of(primes.begin(), primes.end(), [candidate] (int prime) {return candidate % prime == 0;}))
-                primes.push_back(candidate);
-
-        return primes.back();
+        for (int base = 5; ; base += 6)
+            for (int candidate : {base, base + 2})
+                if (isPrime(candidate))
+                    if (--nth == 0)
+                        return candidate;
     }
 }
 
 #endif
 
 //
-//  This solution is compact because it uses a lambda function.
+//  The test case that sought the 10001 prime was used as a benchmark.
 //
-//  The solutions examined showed considerable variety.  Not all represented
-//  attempts to be efficient.
+//  The previous iteration was used as a starting point:  ~1.5s.
 //
-//  A couple of solutions used a template so avoiding having to decide how big
-//  the parameter to nth is.  A couple used a static vector of primes so that
-//  repeated calls would be fast but their solutions were not thread safe.
+//  Reserving the vector seemed to slow things down.  Using std::list instead
+//  of std::vector really slowed things down: ~5s.  Replacing the use of
+//  std::any_of with a lamdba also seemed to slow things a little.
 //
-//  Internally there was some fiddling with the starting conditions, some like
-//  mine so they need only consider odd numbers, one so they could estimate
-//  the number of candidates they would need to consider.
+//  Adding the square optimisation improved matters considerably:  ~30 ms.  All
+//  further fiddling made no signficant difference.
 //
-//  Most built up a list of primes, as mine does.  These use a vector and don't
-//  reserve any space in order to avoid reallocation overhead.
+//  This much faster version still used std::vector but I was fascinated by
+//  someone's use of 6n±1.  This considers two candidates per iteration and so
+//  tends to run fast but more significant was the claim that it was as fast as
+//  std::vector solutions without the memory overhead.
 //
-//  One went for a sieve of Eratosthenes and used boost::dynamic_bitset and one
-//  solution using the "Wheel Sieve" with no memory of primes already seen.
-//
-//  I am intrigued enough to want to try benchmarking this.
+//  This seems to be the case for the solution above.  Adding a std::vector
+//  back in made no difference.  This was suprising.  Perhaps for much, much
+//  larger primes the situation would change but perhaps this will always win
+//  if it is small enough to fit into L1 cache memory.
 //
