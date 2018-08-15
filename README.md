@@ -43,6 +43,8 @@ The emphasis is on content, not presentation.
 Exercises and examples are available under an BSD-style Licence.
 See [BSD-LICENCE.txt](BSD-LICENCE.txt).
 
+See also the [README](./exercism/README.md) in the exercism directory.
+
 ---
 
 *ipl-cpp* by NewForester.
